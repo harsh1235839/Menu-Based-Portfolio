@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Detection App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .output-container img {
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Face Detection App</h1>
+    <form id="uploadForm">
+        <input type="file" id="imageInput" name="image" accept="image/*">
+        <button type="submit">Upload and Detect Faces</button>
+    </form>
+
+    <h2>Detected Faces:</h2>
+    <div id="facesContainer" class="output-container"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            let formData = new FormData();
+            formData.append('image', document.getElementById('imageInput').files[0]);
+
+            let response = await fetch('http://localhost:80/detect_faces', {
+                method: 'POST',  // Ensure this matches the Flask route method
+                body: formData
+            });
+
+            let result = await response.json();
+
+            let facesContainer = document.getElementById('facesContainer');
+            facesContainer.innerHTML = '';
+
+            if (result.error) {
+                facesContainer.innerHTML = `<p>Error: ${result.error}</p>`;
+            } else {
+                result.faces.forEach(function(faceBase64) {
+                    let img = document.createElement('img');
+                    img.src = 'data:image/jpeg;base64,' + faceBase64;
+                    facesContainer.appendChild(img);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

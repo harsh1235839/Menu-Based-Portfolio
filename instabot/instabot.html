@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Post</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        #container {
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+        input, textarea {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #response {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Post on Instagram</h1>
+        <form id="instagram-form">
+            <input type="text" id="username" placeholder="Instagram Username" required>
+            <input type="password" id="password" placeholder="Instagram Password" required>
+            <input type="file" id="photo" accept="image/*" required>
+            <textarea id="caption" rows="4" placeholder="Caption" required></textarea>
+            <button type="submit">Post Photo</button>
+        </form>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        document.getElementById('instagram-form').addEventListener('submit', function(event) {
+            event.preventDefault();  // Prevent the default form submission
+
+            const formData = new FormData();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('photo', document.getElementById('photo').files[0]);
+            formData.append('caption', document.getElementById('caption').value);
+
+            fetch('http://localhost:80/post_on_instagram', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').innerText = data.message || data.error;
+            })
+            .catch(error => {
+                document.getElementById('response').innerText = `Error: ${error}`;
+            });
+        });
+    </script>
+</body>
+</html>

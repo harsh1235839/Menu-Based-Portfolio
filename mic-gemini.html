@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice to Gemini</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #f4f4f4;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Speak to Gemini</h1>
+    <button onclick="startListening()">Start Speaking</button>
+    <div id="output">Output will appear here...</div>
+
+    <script>
+        // Initialize Speech Recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        // This function starts the voice recognition process
+        function startListening() {
+            recognition.start();
+            document.getElementById('output').innerHTML = 'Listening...';
+        }
+
+        // On speech recognition result
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('output').innerHTML = 'You said: ' + transcript;
+
+            // Send the transcript to the Gemini model
+            sendPromptToGemini(transcript);
+        };
+
+        // On speech recognition end
+        recognition.onspeechend = function() {
+            recognition.stop();
+        };
+
+        // Function to send the voice input (transcript) to the Gemini model
+        function sendPromptToGemini(prompt) {
+            // Replace with your Gemini model API endpoint and API key if necessary
+            const apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=AIzaSyDmNflfTp8Hn5PkBdEyP0bADi6KfLjeeFk';  // Replace this with your Gemini API endpoint
+            const apiKey = 'AIzaSyDmNflfTp8Hn5PkBdEyP0bADi6KfLjeeFk';  // Replace this with your actual API key, if required
+
+            fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`,  // Include the API key in the Authorization header if required
+                },
+                body: JSON.stringify({ prompt: prompt }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the output from the Gemini model on the screen
+                document.getElementById('output').innerHTML = 'Gemini says: ' + data.response;
+            })
+            .catch(error => {
+                document.getElementById('output').innerHTML = 'Error: ' + error.message;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQS Interaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        #container {
+            text-align: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <button onclick="sendRequest()">Send Request</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function sendRequest() {
+            fetch('http://localhost:80/sqs')
+                .then(response => response.text())
+                .then(data => {
+                    const output = `
+                        <p><strong>Response:</strong> ${data}</p>
+                    `;
+                    document.getElementById('output').innerHTML = output;
+                })
+                .catch(error => {
+                    document.getElementById('output').innerHTML = `<p>Error fetching data: ${error}</p>`;
+                });
+        }
+    </script>
+</body>
+</html>

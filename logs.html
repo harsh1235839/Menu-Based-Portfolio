@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Logs Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            width: 80%;
+            max-width: 600px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            font-size: 16px;
+        }
+        input {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #logs {
+            margin-top: 20px;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>AWS Logs Viewer</h1>
+        <input type="text" id="awsAccessKeyId" placeholder="AWS Access Key ID" required>
+        <input type="password" id="awsSecretAccessKey" placeholder="AWS Secret Access Key" required>
+        <input type="text" id="logGroupName" placeholder="Log Group Name" required>
+        <input type="text" id="logStreamName" placeholder="Log Stream Name" required>
+        <button id="fetchLogs">Fetch Logs</button>
+        <div id="logs"></div>
+    </div>
+
+    <script>
+        document.getElementById('fetchLogs').addEventListener('click', function() {
+            const awsAccessKeyId = document.getElementById('awsAccessKeyId').value;
+            const awsSecretAccessKey = document.getElementById('awsSecretAccessKey').value;
+            const logGroupName = document.getElementById('logGroupName').value;
+            const logStreamName = document.getElementById('logStreamName').value;
+
+            if (!awsAccessKeyId || !awsSecretAccessKey || !logGroupName || !logStreamName) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            fetch('http://localhost/get-credentials', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    aws_access_key_id: awsAccessKeyId,
+                    aws_secret_access_key: awsSecretAccessKey,
+                    log_group_name: logGroupName,
+                    log_stream_name: logStreamName
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch logs');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.message === 'Logs fetched successfully') {
+                    document.getElementById('logs').innerHTML = `
+                        <p>Logs fetched successfully!</p>
+                        <a href="http://localhost/logs" download="cloudwatch_logs.txt">Download Logs</a>
+                    `;
+                } else {
+                    document.getElementById('logs').innerHTML = `<p>${data.error}</p>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('logs').innerHTML = `<p>Error: ${error.message}</p>`;
+            });
+        });
+    </script>
+</body>
+</html>

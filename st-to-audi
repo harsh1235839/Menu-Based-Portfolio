@@ -1,0 +1,37 @@
+from flask import Flask, request, send_file, jsonify
+from gtts import gTTS
+import io
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/stringtoaudio', methods=['POST'])
+def string_to_audio():
+    data = request.json
+    text = data.get('text', '')
+    
+    if text:
+        try:
+            # Create an in-memory binary buffer
+            audio_buffer = io.BytesIO()
+            
+            # Convert text to speech and write to the buffer
+            tts = gTTS(text, lang='en')
+            tts.write_to_fp(audio_buffer)
+            
+            # Reset the buffer position to the beginning
+            audio_buffer.seek(0)
+            
+            # Stream the buffer as a file without downloading
+            return send_file(
+                audio_buffer,
+                mimetype='audio/mpeg'
+            )
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    else:
+        return jsonify({'error': 'No text provided'}), 400
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=80)

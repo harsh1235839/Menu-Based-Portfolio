@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capture Image and Send Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        #container {
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Capture Image and Send Email</h1>
+
+        <!-- Form to capture image -->
+        <h2>Capture Image</h2>
+        <button onclick="captureImage()">Capture Image</button>
+        <div id="capture-output"></div>
+
+        <!-- Form to send email -->
+        <h2>Send Email</h2>
+        <input type="email" id="receiver_email" placeholder="Receiver's Email" required>
+        <input type="text" id="subject" placeholder="Subject" required>
+        <textarea id="body" rows="4" placeholder="Email Body" required></textarea>
+        <input type="hidden" id="attachment_path" value="captured_image.jpg">
+        <button onclick="sendEmail()">Send Email</button>
+        <div id="email-output"></div>
+    </div>
+
+    <script>
+        function captureImage() {
+            fetch('http://localhost:80/capture_image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ filename: 'captured_image.jpg' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('capture-output').innerHTML = `<p>${data.message || data.error}</p>`;
+            })
+            .catch(error => {
+                document.getElementById('capture-output').innerHTML = `<p>Error: ${error}</p>`;
+            });
+        }
+
+        function sendEmail() {
+            const receiverEmail = document.getElementById('receiver_email').value;
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+            const attachmentPath = document.getElementById('attachment_path').value;
+
+            fetch('http://localhost:80/send_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    receiver_email: receiverEmail,
+                    subject: subject,
+                    body: body,
+                    attachment_path: attachmentPath
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('email-output').innerHTML = `<p>${data.message || data.error}</p>`;
+            })
+            .catch(error => {
+                document.getElementById('email-output').innerHTML = `<p>Error: ${error}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>

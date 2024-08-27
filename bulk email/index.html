@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Email Sender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f7;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input[type="text"], textarea {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Bulk Email Sender</h1>
+    <div class="container">
+        <label for="smtpServer">SMTP Server:</label><br>
+        <input type="text" id="smtpServer" placeholder="SMTP Server"><br>
+        <label for="smtpPort">SMTP Port:</label><br>
+        <input type="text" id="smtpPort" placeholder="SMTP Port"><br>
+        <label for="smtpUser">SMTP User:</label><br>
+        <input type="text" id="smtpUser" placeholder="SMTP User"><br>
+        <label for="smtpPassword">SMTP Password:</label><br>
+        <input type="text" id="smtpPassword" placeholder="SMTP Password"><br>
+        <label for="fromEmail">From Email:</label><br>
+        <input type="text" id="fromEmail" placeholder="From Email"><br>
+        <label for="toEmails">To Emails (comma-separated):</label><br>
+        <textarea id="toEmails" rows="4" placeholder="To Emails (comma-separated)"></textarea><br>
+        <label for="subject">Subject:</label><br>
+        <input type="text" id="subject" placeholder="Subject"><br>
+        <label for="body">Body:</label><br>
+        <textarea id="body" rows="6" placeholder="Body"></textarea><br>
+        <button id="sendEmail">Send Emails</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('sendEmail').onclick = async function() {
+            const smtpServer = document.getElementById('smtpServer').value;
+            const smtpPort = document.getElementById('smtpPort').value;
+            const smtpUser = document.getElementById('smtpUser').value;
+            const smtpPassword = document.getElementById('smtpPassword').value;
+            const fromEmail = document.getElementById('fromEmail').value;
+            const toEmails = document.getElementById('toEmails').value;
+            const subject = document.getElementById('subject').value;
+            const body = document.getElementById('body').value;
+
+            const response = await fetch('http://localhost/send_bulk_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    smtp_server: smtpServer,
+                    smtp_port: smtpPort,
+                    smtp_user: smtpUser,
+                    smtp_password: smtpPassword,
+                    from_email: fromEmail,
+                    to_emails: toEmails,
+                    subject: subject,
+                    body: body
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById('result').innerHTML = "<h3>Success:</h3><p>" + result.message + "</p>";
+            } else {
+                document.getElementById('result').innerHTML = "<h3>Error:</h3><p>" + result.message + "</p>";
+            }
+        };
+    </script>
+</body>
+</html>

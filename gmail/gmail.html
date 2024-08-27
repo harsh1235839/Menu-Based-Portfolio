@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        #container {
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Send an Email</h1>
+        <input type="email" id="to" placeholder="Recipient's Email" required>
+        <textarea id="message" rows="4" placeholder="Your Message" required></textarea>
+        <button onclick="sendEmail()">Send Email</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function sendEmail() {
+            const to = document.getElementById('to').value;
+            const message = document.getElementById('message').value;
+
+            fetch('http://localhost:80/send_email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ to, message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('output').innerHTML = `<p>${data.message || data.error}</p>`;
+            })
+            .catch(error => {
+                document.getElementById('output').innerHTML = `<p>Error: ${error}</p>`;
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        #container {
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <input type="text" id="query" placeholder="Enter search query">
+        <button onclick="performSearch()">Search</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function performSearch() {
+            const query = document.getElementById('query').value;
+            if (!query) {
+                document.getElementById('output').innerHTML = '<p>Please enter a query.</p>';
+                return;
+            }
+
+            fetch(`http://localhost:80/search?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('output').innerHTML = `<p>${data.error}</p>`;
+                    } else {
+                        const results = data.results.map(result => `<p><a href="${result}" target="_blank">${result}</a></p>`).join('');
+                        document.getElementById('output').innerHTML = results;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('output').innerHTML = `<p>Error fetching search results: ${error}</p>`;
+                });
+        }
+    </script>
+</body>
+</html>

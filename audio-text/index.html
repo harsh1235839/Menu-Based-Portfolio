@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio to Text Transcription</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f7;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        input[type="text"], select {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio to Text Transcription</h1>
+    <div class="container">
+        <div>
+            <label for="awsAccessKey">AWS Access Key:</label><br>
+            <input type="text" id="awsAccessKey"><br>
+            <label for="awsSecretKey">AWS Secret Key:</label><br>
+            <input type="text" id="awsSecretKey"><br>
+            <label for="regionName">Region Name:</label><br>
+            <input type="text" id="regionName"><br>
+            <label for="bucketName">Bucket Name:</label><br>
+            <input type="text" id="bucketName"><br>
+            <button id="listFiles">List Files</button>
+        </div>
+
+        <div id="fileSelection" style="display: none;">
+            <label for="fileSelect">Select a file:</label><br>
+            <select id="fileSelect"></select><br>
+            <button id="transcribe">Transcribe</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('listFiles').onclick = async function() {
+            const awsAccessKey = document.getElementById('awsAccessKey').value;
+            const awsSecretKey = document.getElementById('awsSecretKey').value;
+            const regionName = document.getElementById('regionName').value;
+            const bucketName = document.getElementById('bucketName').value;
+
+            const response = await fetch('http://localhost:80/list-audio-files', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ aws_access_key: awsAccessKey, aws_secret_key: awsSecretKey, region_name: regionName, bucket_name: bucketName })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                const fileSelect = document.getElementById('fileSelect');
+                fileSelect.innerHTML = '';
+                result.files.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file;
+                    option.text = file;
+                    fileSelect.appendChild(option);
+                });
+                document.getElementById('fileSelection').style.display = 'block';
+            } else {
+                document.getElementById('result').innerHTML = "<h3>Error:</h3><p>" + result.message + "</p>";
+            }
+        };
+
+        document.getElementById('transcribe').onclick = async function() {
+            const awsAccessKey = document.getElementById('awsAccessKey').value;
+            const awsSecretKey = document.getElementById('awsSecretKey').value;
+            const regionName = document.getElementById('regionName').value;
+            const bucketName = document.getElementById('bucketName').value;
+            const fileKey = document.getElementById('fileSelect').value;
+
+            const response = await fetch('http://localhost:80/transcribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ aws_access_key: awsAccessKey, aws_secret_key: awsSecretKey, region_name: regionName, bucket_name: bucketName, file_key: fileKey })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById('result').innerHTML = "<h3>Transcribed Text:</h3><p>" + result.transcript + "</p>";
+            } else {
+                document.getElementById('result').innerHTML = "<h3>Error:</h3><p>" + result.message + "</p>";
+            }
+        };
+    </script>
+</body>
+</html>

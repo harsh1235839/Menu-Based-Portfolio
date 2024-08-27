@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Launch EC2 Instance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #0072ff;
+            box-shadow: 0 0 5px rgba(0, 114, 255, 0.5);
+            outline: none;
+        }
+
+        button {
+            background: #0072ff;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background: #005bb5;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <script>
+        async function launchInstance() {
+            const awsAccessKeyId = document.getElementById('aws_access_key_id').value;
+            const awsSecretAccessKey = document.getElementById('aws_secret_access_key').value;
+            const regionName = document.getElementById('region_name').value;
+            const instanceType = document.getElementById('instance_type').value;
+            const imageId = document.getElementById('image_id').value;
+
+            const response = await fetch('http://localhost:80/instance_launch', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    aws_access_key_id: awsAccessKeyId,
+                    aws_secret_access_key: awsSecretAccessKey,
+                    region_name: regionName,
+                    instance_type: instanceType,
+                    image_id: imageId
+                })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.message);
+            } else {
+                alert('Error: ' + result.error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Launch EC2 Instance</h1>
+        <form id="instanceForm" onsubmit="event.preventDefault(); launchInstance();">
+            <label for="aws_access_key_id">AWS Access Key ID:</label>
+            <input type="text" id="aws_access_key_id" required>
+
+            <label for="aws_secret_access_key">AWS Secret Access Key:</label>
+            <input type="password" id="aws_secret_access_key" required>
+
+            <label for="region_name">Region Name:</label>
+            <input type="text" id="region_name" required>
+
+            <label for="instance_type">Instance Type:</label>
+            <select id="instance_type">
+                <option value="t2.micro">t2.micro</option>
+                <option value="t2.small">t2.small</option>
+                <option value="t2.medium">t2.medium</option>
+                <!-- Add more options as needed -->
+            </select>
+
+            <label for="image_id">AMI Image ID:</label>
+            <input type="text" id="image_id" required>
+
+            <button type="submit">Launch Instance</button>
+        </form>
+    </div>
+</body>
+</html>

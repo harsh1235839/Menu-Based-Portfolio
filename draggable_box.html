@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draggable Box</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: #e0f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #draggableBox {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #ff4081, #ff80ab);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-family: 'Arial', sans-serif;
+            cursor: grab;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: absolute; /* Important for dragging */
+        }
+        #draggableBox:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body>
+    <div id="draggableBox">Drag Me!</div>
+
+    <script>
+        const box = document.getElementById('draggableBox');
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        box.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            offsetX = e.clientX - box.getBoundingClientRect().left;
+            offsetY = e.clientY - box.getBoundingClientRect().top;
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        function onMouseMove(e) {
+            if (!isDragging) return;
+            box.style.left = `${e.clientX - offsetX}px`;
+            box.style.top = `${e.clientY - offsetY}px`;
+        }
+
+        function onMouseUp() {
+            isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+    </script>
+</body>
+</html>

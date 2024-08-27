@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Filter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+
+        #container {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+        }
+
+        textarea, button {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <textarea id="input" placeholder="Enter text to filter"></textarea>
+        <button onclick="filterInput()">Filter Input</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function filterInput() {
+            const userInput = document.getElementById('input').value;
+
+            if (!userInput) {
+                document.getElementById('output').innerHTML = '<p>Please enter some text.</p>';
+                return;
+            }
+
+            fetch('http://localhost:80/filter?input=' + encodeURIComponent(userInput))
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('output').innerHTML = `<p style="color: red;">${data.error}</p>`;
+                    } else {
+                        document.getElementById('output').innerHTML = `<p>${data.message}</p>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('output').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                });
+        }
+    </script>
+</body>
+</html>

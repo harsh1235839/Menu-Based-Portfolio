@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e0f7fa;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00796b;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            flex: 0 0 150px;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #00796b;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #b2dfdb;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group button:hover {
+            border-color: #004d40;
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 77, 64, 0.2);
+        }
+
+        button {
+            background: #00796b;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        button:disabled {
+            background: #b2dfdb;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            color: #388e3c;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Docker Manager</h1>
+        <div class="form-container">
+            <form id="docker-form">
+                <div class="form-group">
+                    <label for="action">Select Action:</label>
+                    <select id="action" name="action">
+                        <option value="pull">Pull Image</option>
+                        <option value="launch">Launch Container</option>
+                        <option value="stop">Stop Container</option>
+                        <option value="start">Start Container</option>
+                        <option value="status">Container Status</option>
+                        <option value="remove">Remove Container</option>
+                        <option value="logs">Container Logs</option>
+                        <option value="image_remove">Remove Image</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="container_name">Container Name:</label>
+                    <input type="text" id="container_name" name="container_name" placeholder="e.g., my_container">
+                </div>
+                <div class="form-group">
+                    <label for="image">Image:</label>
+                    <input type="text" id="image" name="image" placeholder="e.g., ubuntu:latest">
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject:</label>
+                    <input type="text" id="subject" name="subject" placeholder="e.g., my_container">
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('docker-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const action = document.getElementById('action').value;
+            const containerName = document.getElementById('container_name').value;
+            const image = document.getElementById('image').value;
+            const subject = document.getElementById('subject').value;
+            
+            const resultElement = document.getElementById('result');
+
+            let endpoint = '';
+            let requestBody = {};
+
+            switch (action) {
+                case 'pull':
+                    endpoint = '/docker_image_pull';
+                    requestBody = { image };
+                    break;
+                case 'launch':
+                    endpoint = '/launch_docker';
+                    requestBody = { container_name: containerName, image };
+                    break;
+                case 'stop':
+                    endpoint = '/docker_stop';
+                    requestBody = { container_name: containerName };
+                    break;
+                case 'start':
+                    endpoint = '/docker_start';
+                    requestBody = { container_name: containerName };
+                    break;
+                case 'status':
+                    endpoint = '/docker_status';
+                    requestBody = { container_name: containerName };
+                    break;
+                case 'remove':
+                    endpoint = '/docker_remove';
+                    requestBody = { container_name: containerName };
+                    break;
+                case 'logs':
+                    endpoint = '/docker_logs';
+                    requestBody = { container_name: subject };
+                    break;
+                case 'image_remove':
+                    endpoint = '/docker_image_remove';
+                    requestBody = { image };
+                    break;
+                default:
+                    resultElement.innerHTML = 'Invalid action selected.';
+                    return;
+            }
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                resultElement.innerHTML = `<strong>${data.message}</strong>`;
+                resultElement.style.color = data.status === 'success' ? '#388e3c' : '#d32f2f';
+            } catch (error) {
+                resultElement.innerHTML = `<strong>Error: ${error.message}</strong>`;
+                resultElement.style.color = '#d32f2f';
+            }
+        });
+    </script>
+</body>
+</html>

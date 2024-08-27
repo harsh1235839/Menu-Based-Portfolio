@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S3 Bucket and File Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f7;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        label {
+            margin-bottom: 5px;
+            display: block;
+            color: #34495e;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #dfe6e9;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>AWS S3 Bucket and File Upload</h2>
+
+        <!-- Form to enter details -->
+        <form id="actionForm">
+            <label for="aws_access_key">AWS Access Key:</label>
+            <input type="text" id="aws_access_key" name="aws_access_key" required>
+            <label for="aws_secret_key">AWS Secret Key:</label>
+            <input type="password" id="aws_secret_key" name="aws_secret_key" required>
+            <label for="bucket_name">Bucket Name:</label>
+            <input type="text" id="bucket_name" name="bucket_name" required>
+            <label for="file_name">File Name:</label>
+            <input type="text" id="file_name" name="file_name" required>
+            <label for="file_content">File Content:</label>
+            <textarea id="file_content" name="file_content" rows="4" required></textarea>
+            <label for="region">Region:</label>
+            <input type="text" id="region" name="region" value="us-east-1">
+            <button type="submit">Create Bucket and Upload File</button>
+        </form>
+
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        document.getElementById('actionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const aws_access_key = document.getElementById('aws_access_key').value;
+            const aws_secret_key = document.getElementById('aws_secret_key').value;
+            const bucket_name = document.getElementById('bucket_name').value;
+            const file_name = document.getElementById('file_name').value;
+            const file_content = document.getElementById('file_content').value;
+            const region = document.getElementById('region').value;
+
+            fetch('http://127.0.0.1:80/create_and_upload', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    aws_access_key,
+                    aws_secret_key,
+                    bucket_name,
+                    file_name,
+                    file_content,
+                    region
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = data.message ? `<span style="color: green;">${data.message}</span>` : `<span style="color: red;">Error: ${data.error}</span>`;
+            })
+            .catch(error => {
+                const outputDiv = document.getElementById('output');
+                outputDiv.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>

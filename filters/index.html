@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Video Feed with Filters</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 20px;
+        }
+        #video {
+            width: 640px;
+            height: 480px;
+            border: 1px solid #ddd;
+        }
+        .filter-info {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Live Video Feed with Filters</h1>
+    <img id="video" src="http://localhost:80/video_feed" alt="Video Feed">
+    <div class="filter-info">
+        <h2>Current Filter:</h2>
+        <p id="filterName">Loading...</p>
+    </div>
+    <script>
+        async function updateFilter() {
+            try {
+                let response = await fetch('http://localhost:80/current_filter');
+                let data = await response.json();
+                document.getElementById('filterName').innerText = data.filter;
+            } catch (error) {
+                console.error('Error fetching current filter:', error);
+            }
+        }
+
+        setInterval(updateFilter, 1000); // Update filter every second
+    </script>
+</body>
+</html>

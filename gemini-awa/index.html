@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS Translate Script Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 400px;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background: #0056b3;
+        }
+        .message {
+            margin-top: 15px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Translate Text</h1>
+        <div class="form-group">
+            <label for="text">Text to Translate:</label>
+            <textarea id="text" rows="4" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="target_lang">Target Language Code (e.g., 'fr'):</label>
+            <input type="text" id="target_lang" required />
+        </div>
+        <div class="form-group">
+            <label for="aws_access_key">AWS Access Key:</label>
+            <input type="text" id="aws_access_key" required />
+        </div>
+        <div class="form-group">
+            <label for="aws_secret_key">AWS Secret Key:</label>
+            <input type="text" id="aws_secret_key" required />
+        </div>
+        <div class="form-group">
+            <label for="aws_region">AWS Region:</label>
+            <input type="text" id="aws_region" required />
+        </div>
+        <div class="form-group">
+            <button onclick="generateScript()">Generate & Run Script</button>
+        </div>
+        <div class="message" id="message"></div>
+    </div>
+    <script>
+        async function generateScript() {
+            const text = document.getElementById('text').value;
+            const targetLang = document.getElementById('target_lang').value;
+            const awsAccessKey = document.getElementById('aws_access_key').value;
+            const awsSecretKey = document.getElementById('aws_secret_key').value;
+            const awsRegion = document.getElementById('aws_region').value;
+
+            const response = await fetch('http://localhost:80/generate_translation_script', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    text: text,
+                    target_lang: targetLang,
+                    aws_access_key: awsAccessKey,
+                    aws_secret_key: awsSecretKey,
+                    aws_region: awsRegion
+                })
+            });
+
+            const result = await response.json();
+            const messageElement = document.getElementById('message');
+            
+            if (response.ok) {
+                messageElement.textContent = result.message;
+                messageElement.style.color = 'green';
+            } else {
+                messageElement.textContent = result.error;
+                messageElement.style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>
